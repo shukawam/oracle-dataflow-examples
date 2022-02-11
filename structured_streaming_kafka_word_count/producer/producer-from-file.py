@@ -7,7 +7,7 @@ from kafka import KafkaProducer
 # Download enwik8 from http://mattmahoney.net/dc/textdata.html or any other large enough text
 source_file_path = '/tmp/enwik8'
 kafka_bootstrap_server = '<kafka-bootstrap-server>'
-kafka_topic = 'word-count-stream'
+kafka_topic = '<topic-name>'
 kafka_username = '<username>'
 kafka_streampool_id = '<stream-pool-id>'
 kafka_token = '<auth-token>'
