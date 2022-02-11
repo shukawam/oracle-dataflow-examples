@@ -6,12 +6,11 @@ from kafka import KafkaProducer
 # Constants
 # Download enwik8 from http://mattmahoney.net/dc/textdata.html or any other large enough text
 source_file_path = '/tmp/enwik8'
-kafka_bootstrap_server = 'cell-1.streaming.ap-tokyo-1.oci.oraclecloud.com'
-kafka_topic = 'word-count'
-kafka_username = 'oracleidentitycloudservice/shuhei.kawamura@oracle.com'
-kafka_user_tenancy_name = 'orasejapan'
-kafka_streampool_id = 'ocid1.streampool.oc1.ap-tokyo-1.amaaaaaassl65iqaeeajqaipi6sfbafeoa5swgxrxmm3q5gzo7hngf77wbtq'
-kafka_token = 'RyADlvW1ZwyxbEj<S:IM'
+kafka_bootstrap_server = '<kafka-bootstrap-server>'
+kafka_topic = 'word-count-stream'
+kafka_username = '<username>'
+kafka_streampool_id = '<stream-pool-id>'
+kafka_token = '<auth-token>'
 read_lines_limit = 101209
 cadense_sec = 60
 
@@ -19,8 +18,7 @@ print("Creating Kafka producer...", end=" ")
 producer = KafkaProducer(
     bootstrap_servers=kafka_bootstrap_server,
     security_protocol='SASL_SSL', sasl_mechanism='PLAIN',
-    sasl_plain_username=kafka_user_tenancy_name + '/' +
-    kafka_username + '/' + kafka_streampool_id,
+    sasl_plain_username=kafka_username,
     sasl_plain_password=kafka_token)
 print("Done.")
 
