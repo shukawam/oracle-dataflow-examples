@@ -4,7 +4,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.util.logging.Logger;
+import java.util.*;
 
 /**
  * Example code for Spark Oracle DataSource.
@@ -12,27 +12,40 @@ import java.util.logging.Logger;
  * @author shukawam
  */
 public class Main {
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
-
     public static void main(String... args) {
         SparkSession spark = SparkSession.builder().appName("spark-oracle-datasource").getOrCreate();
-        loadToAdw(spark, args[0], args[1], args[2]);
+        Map<String, String> properties = getProperties(args);
+        loadToAdw(spark, properties);
         spark.stop();
     }
 
-    public static void loadToAdw(SparkSession spark, String salesChannelPath, String walletUri, String dbTable) {
-        // data load from object storage
-        Dataset<Row> salesChannel = spark.read()
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .csv(salesChannelPath);
-        LOGGER.info("SALES_CHANNEL");
-        salesChannel.show();
-        // data load to adw with wallet in object storage
-        salesChannel.write()
+    private static Map<String, String> getProperties(String... args) {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("adbId", args[0]);
+        properties.put("username", args[1]);
+        properties.put("password", args[2]);
+        properties.put("schema", args[3]);
+        properties.put("fromTable", args[4]);
+        properties.put("toTable", args[5]);
+        return properties;
+    }
+
+    private static void loadToAdw(SparkSession spark, Map<String, String> properties) {
+        Map<String, String> defaultOptions = new HashMap<>();
+        defaultOptions.put("adbId", properties.get("adbId"));
+        defaultOptions.put("user", properties.get("username"));
+        defaultOptions.put("password", properties.get("password"));
+        Dataset<Row> dataset = spark.read()
                 .format("oracle")
-                .option("walletUri", walletUri)
-                .option("dbtable", dbTable)
+                .options(defaultOptions)
+                .option("dbtable", String.format("%s.%s", properties.get("schema"), properties.get("fromTable")))
+                .load();
+        dataset.show();
+        dataset.write()
+                .format("oracle")
+                .options(defaultOptions)
+                .option("dbtable", String.format("%s.%s", properties.get("schema"), properties.get("toTable")))
                 .save();
     }
+
 }
